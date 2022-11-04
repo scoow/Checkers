@@ -1,32 +1,34 @@
-using Checkers;
-using System;
 using System.Collections;
 using UnityEngine;
 
-public class CameraManager : MonoBehaviour
+namespace Checkers
 {
-    bool side = true;
-
-    public void RotateCam()
+    public class CameraManager : MonoBehaviour
     {
-        if (side)
-            StartCoroutine(RotateCamera(2f, 180));
-        else
-            StartCoroutine(RotateCamera(2f, 0));
+        private bool _side = true;
 
-        side = !side;
-    }
-
-    private IEnumerator RotateCamera(float time, float angle)
-    {
-        var currentTime = 0f;
-        GameManager.instance._rayCast.enabled = false;
-        while (currentTime < time)
+        public void RotateCam()
         {
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, angle, 0), currentTime / 20); // 0 - 1
-            currentTime += Time.deltaTime;
-            yield return null;
+            if (_side)
+                StartCoroutine(RotateCamera(2f, 180));
+            else
+                StartCoroutine(RotateCamera(2f, 0));
+
+            _side = !_side;
         }
-        GameManager.instance._rayCast.enabled = true; 
+
+        private IEnumerator RotateCamera(float time, float angle)
+        {
+            var currentTime = 0f;
+            //GameManager.instance.RayCaster.enabled = false;//////////////////////////
+
+            while (currentTime < time)
+            {
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, angle, 0), currentTime / 20); // 0 - 1
+                currentTime += Time.deltaTime;
+                yield return null;
+            }
+            //GameManager.instance.RayCaster.enabled = true;
+        }
     }
 }

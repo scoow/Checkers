@@ -8,10 +8,6 @@ namespace Checkers
 {
     public class GameManager : MonoBehaviour
     {
-        public static GameManager instance;
-        [SerializeField] private Material _selectCellMaterial;
-        [SerializeField] private Material _selectChipMaterial;
-
         private List<CellComponent> _cellComponents;
         private List<CellComponent> _blackWinPositionCellComponents;
         private List<CellComponent> _whiteWinPositionCellComponents;
@@ -20,25 +16,18 @@ namespace Checkers
         private List<ChipComponent> _blackChipComponents;
         private List<ChipComponent> _сhipComponents;
 
+        private SelectManager selectManager;
+        private GameInitializator gameInitializator;
+
         private ColorType _currentPlayer = ColorType.White;
 
         private CameraManager _playerCamera;
 
-        private CellComponent _selectedCell = null; //ссылка на нажатую клетку
-        private List<CellComponent> _selectedCells = new(); //ссылка на выделенные клетки
+
         private ChipComponent _selectedChip = null;//ссылка на выделенную шашку
-
-        private MainCam _mainCam;
-        public PhysicsRaycaster _rayCast;
-
-        private void Awake()
-        {
-            instance = this;
-        }
         private void Start()
         {
-            _mainCam = FindObjectOfType<MainCam>();
-            _rayCast = _mainCam.GetComponent<PhysicsRaycaster>();//блокировка ввода отключением Raycaster
+            
 
             _playerCamera = FindObjectOfType<CameraManager>();
 
@@ -48,10 +37,13 @@ namespace Checkers
             _whiteChipComponents = _сhipComponents.Where(t => t.GetColor == ColorType.White).ToList();
             _blackChipComponents = _сhipComponents.Where(t => t.GetColor == ColorType.Black).ToList();
 
+            selectManager = new(_cellComponents, _сhipComponents);
+            gameInitializator = new(_cellComponents, _сhipComponents);
+
             InitializeWinPosition();
 
-            PairAllChips();//найти пару для всех шашек и связать
-            FindNeighbors();//найти соседей для всех клеток
+            gameInitializator.PairAllChips();//найти пару для всех шашек и связать
+            gameInitializator.FindNeighbors();//найти соседей для всех клеток
             SubscribeCells();//подписаться на события всех клеток
         }
         /// <summary>
@@ -60,26 +52,26 @@ namespace Checkers
         /// <param name="cell">клетка</param>
         private void CellOnClick(CellComponent cell)
         {
-            if (!IsCellEmpty(cell))//Если на клетке стоит шашка
+            if (!cell.IsEmpty())//Если на клетке стоит шашка
             {
                 if (!SelectChipIsValid(cell.Pair as ChipComponent))//Если шашка не принадлежит игроку
                 {
                     Debug.Log("Не ваш ход!");
                     return;
                 }
-                DeselectAllChips();
-                DeselectAllCells();
+                selectManager.DeselectAllChips();
+                selectManager.DeselectAllCells();
 
-                if (cell == _selectedCell)//Если повторно выбрана выделенная шашка
+                if (cell == selectManager.SelectedCell)//Если повторно выбрана выделенная шашка
                 {
-                    _selectedCell = null;
+                    selectManager.SelectedCell = null;
                     return;
                 }
 
-                _selectedCell = cell;
-                _selectedChip = _selectedCell.Pair as ChipComponent;
-                
-                ChipOnSelect(_selectedChip);//При выделении шашки
+                selectManager.SelectedCell = cell;
+                _selectedChip = selectManager.SelectedCell.Pair as ChipComponent;
+
+                selectManager.ChipOnSelect(_selectedChip);//При выделении шашки
                 return;
             }
 
@@ -88,8 +80,8 @@ namespace Checkers
             if (IsValidMove(_selectedChip, cell as CellComponent))//Если возможен ход
             {
                 MoveChip(_selectedChip, cell as CellComponent);//Ходим
-                DeselectAllChips();//Убираем выделение с шашек
-                DeselectAllCells();//Убираем выделение с клеток
+                selectManager.DeselectAllChips();//Убираем выделение с шашек
+                selectManager.DeselectAllCells();//Убираем выделение с клеток
 
                 if (ChipReachedLastRow(_selectedChip))//Проверка условия победы 
                     Debug.Log("Победа " + _currentPlayer);
@@ -102,8 +94,8 @@ namespace Checkers
             if (isValidEat(_selectedChip, cell as CellComponent))//Если возможно съедение
             {
                 EatChip(_selectedChip, cell as CellComponent, DetermineDirection(_selectedChip, cell as CellComponent, out bool plug));//Едим
-                DeselectAllChips();//Убираем выделение с шашек
-                DeselectAllCells();//Убираем выделение с клеток
+                selectManager.DeselectAllChips();//Убираем выделение с шашек
+                selectManager.DeselectAllCells();//Убираем выделение с клеток
 
                 if (ChipReachedLastRow(_selectedChip) || ChipsCountLessThanZero(_currentPlayer))//Проверка условия победы 
                     Debug.Log("Победа " + _currentPlayer);
@@ -119,8 +111,8 @@ namespace Checkers
         {
             foreach (var cell in _cellComponents)
             {
-                cell.OnFocusEventHandler += CellFocus;
-                cell.OnClickEventHandler += CellOnClick;
+                cell.OnFocusEventHandler += selectManager.CellFocus;
+                cell.OnClickEventHandler += CellOnClick;///////////////
             }
         }
         /// <summary>
@@ -201,15 +193,7 @@ namespace Checkers
             isSuccess = false;
             return NeighborType.TopLeft;
         }
-        /// <summary>
-        /// При выделении шашки
-        /// </summary>
-        /// <param name="chip">Шашка</param>
-        private void ChipOnSelect(ChipComponent chip)
-        {
-            chip.AddAdditionalMaterial(_selectChipMaterial);
-            SelectPossibleMoves(chip.Pair as CellComponent, chip.GetColor);
-        }
+
         /// <summary>
         /// Проверка, возможен ли ход
         /// </summary>
@@ -271,8 +255,8 @@ namespace Checkers
             * 3 она вражеская
             */
             var c = chip.Pair as CellComponent;
-            if (IsCellEmpty(cell) && IsNeighbor(cell.GetNeighbor(ReversedNeighborType(neighborType)), chip))
-                if (!IsCellEmpty(c.GetNeighbor(neighborType)) && c.GetNeighbor(neighborType).Pair.GetColor != chip.GetColor)
+            if (cell.IsEmpty() && IsNeighbor(cell.GetNeighbor(ReversedNeighborType(neighborType)), chip))
+                if (!c.GetNeighbor(neighborType).IsEmpty() && c.GetNeighbor(neighborType).Pair.GetColor != chip.GetColor)
                     return true;
             return false;
         }
@@ -314,141 +298,9 @@ namespace Checkers
             }
             return false;
         }
-        /// <summary>
-        /// Проверка на наличие пары
-        /// </summary>
-        /// <param name="component">клетка</param>
-        /// <returns>есть ли пара</returns>
-        private bool IsCellEmpty(CellComponent component)
-        {
-            return component?.Pair == null;
-        }
-        /// <summary>
-        /// Снимает выделение со всех шашек
-        /// </summary>
-        private void DeselectAllChips()
-        {
-            foreach (var chip in _сhipComponents)
-            {
-                chip.RemoveAdditionalMaterial();
-            }
-        }
-        /// <summary>
-        /// Поиск пар для все шашек
-        /// </summary>
-        private void PairAllChips()
-        {
-            foreach (var chip in _сhipComponents)
-            {
-                chip.Pair = _cellComponents.First(cell => (cell.transform.position.x == chip.transform.position.x) && (cell.transform.position.z == chip.transform.position.z));
-                chip.Pair.Pair = chip;
-            }
-        }
-        /// <summary>
-        /// Поиск всех соседей для клеток
-        /// </summary>
-        /// <param name="cell">клетка</param>
-        private void FindNeighbors()
-        {
-            foreach (var cell in _cellComponents)
-            {
-                Dictionary<NeighborType, CellComponent> neighbors = new();
 
-                foreach (NeighborType type in Enum.GetValues(typeof(NeighborType)))
-                {
-                    neighbors.Add(type, FindNeighbor(cell, type));
-                }
-                cell.Configuration(neighbors);
-            }
-        }
-        /// <summary>
-        /// Поиск соседа типа type для клетки cell
-        /// </summary>
-        /// <param name="cell"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        private CellComponent FindNeighbor(CellComponent cell, NeighborType type)
-        {
-            return type switch
-            {
-                NeighborType.TopLeft => _cellComponents.FirstOrDefault(c => (c.transform.position.x == cell.transform.position.x - 10) && (c.transform.position.z == cell.transform.position.z - 10)),
-                NeighborType.TopRight => _cellComponents.FirstOrDefault(c => (c.transform.position.x == cell.transform.position.x - 10) && (c.transform.position.z == cell.transform.position.z + 10)),
-                NeighborType.BottomLeft => _cellComponents.FirstOrDefault(c => (c.transform.position.x == cell.transform.position.x + 10) && (c.transform.position.z == cell.transform.position.z - 10)),
-                NeighborType.BottomRight => _cellComponents.FirstOrDefault(c => (c.transform.position.x == cell.transform.position.x + 10) && (c.transform.position.z == cell.transform.position.z + 10)),
-                _ => null,
-            };
-        }
-        /// <summary>
-        /// Выделяет или снимает выделение с клетки при наведении
-        /// </summary>
-        /// <param name="component"></param>
-        /// <param name="isSelect"></param>
-        private void CellFocus(CellComponent cell, bool isSelect)
-        {
-            if (isSelect)
-            {
-                cell.AddAdditionalMaterial(_selectCellMaterial);
-                cell.Pair?.AddAdditionalMaterial(_selectChipMaterial);
-            }
-            else
-            {
-                if (cell != _selectedCell && !_selectedCells.Contains(cell))//исправить
-                {
-                    cell.RemoveAdditionalMaterial();
-                    cell.Pair?.RemoveAdditionalMaterial();
-                }
-            }
-        }
-        /// <summary>
-        /// Снять выделение со всех соседей клетки
-        /// </summary>
-        /// <param name="component"></param>
-        private void DeselectAllCells()
-        {
-           foreach (var cell in _cellComponents)
-            {
-                cell.RemoveAdditionalMaterial();
-            }
-            _selectedCells.Clear();
-        }
-        /// <summary>
-        /// Выделить левого и правого соседа в зависимости от играющей стороны
-        /// </summary>
-        /// <param name="component"></param>
-        private void SelectPossibleMoves(CellComponent cell, ColorType currentPlayer)
-        {
-            if (currentPlayer == ColorType.White)
-            {
-                if (IsCellEmpty(cell.GetNeighbor(NeighborType.TopLeft)))
-                {
-                    cell.GetNeighbor(NeighborType.TopLeft)?.AddAdditionalMaterial(_selectCellMaterial);
-                    _selectedCells.Add(cell.GetNeighbor(NeighborType.TopLeft));
-                }
-                if (IsCellEmpty(cell.GetNeighbor(NeighborType.TopRight)))
-                {
-                    cell.GetNeighbor(NeighborType.TopRight)?.AddAdditionalMaterial(_selectCellMaterial);
-                    _selectedCells.Add(cell.GetNeighbor(NeighborType.TopRight));
-                } 
-            }
-            else
-            {
-                if (IsCellEmpty(cell.GetNeighbor(NeighborType.BottomLeft)))
-                {
-                    cell.GetNeighbor(NeighborType.BottomLeft)?.AddAdditionalMaterial(_selectCellMaterial);
-                    _selectedCells.Add(cell.GetNeighbor(NeighborType.BottomLeft));
-                }
-                if (IsCellEmpty(cell.GetNeighbor(NeighborType.BottomRight)))
-                {
-                    cell.GetNeighbor(NeighborType.BottomRight)?.AddAdditionalMaterial(_selectCellMaterial);
-                    _selectedCells.Add(cell.GetNeighbor(NeighborType.BottomRight));
-                }
-            }
-            foreach (var c in _cellComponents)
-                if (isValidEat(cell.Pair as ChipComponent, c))
-                {
-                    c.AddAdditionalMaterial(_selectCellMaterial);
-                    _selectedCells.Add(c);
-                }
-        }
+
+
+        
     }
 }

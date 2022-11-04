@@ -86,9 +86,4 @@ namespace Checkers
         public delegate void ClickEventHandler(CellComponent component);
         public delegate void FocusEventHandler(CellComponent component, bool isSelect);
     }
-    public enum ColorType
-    {
-        White,
-        Black
-    }
-} 
+}

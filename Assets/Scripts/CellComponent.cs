@@ -31,5 +31,15 @@ namespace Checkers
             if (_neighbors != null) return;
             _neighbors = neighbors;
 		}
+
+        /////////////////////////////
+        /// <summary>
+        /// Проверка на наличие пары
+        /// </summary>
+        /// <returns>есть ли пара</returns>
+        public bool IsEmpty()
+        {
+            return this.Pair == null;
+        }
     }    
 }

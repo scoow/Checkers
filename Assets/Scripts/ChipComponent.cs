@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 
 namespace Checkers
 {
-
     public class ChipComponent : BaseClickComponent
     {
         public override void OnPointerEnter(PointerEventData eventData)

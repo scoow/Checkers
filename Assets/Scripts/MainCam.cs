@@ -1,5 +1,7 @@
 using UnityEngine;
-
-public class MainCam : MonoBehaviour
+namespace Checkers
 {
+    public class MainCam : MonoBehaviour
+    {
+    }
 }
