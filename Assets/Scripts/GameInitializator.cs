@@ -1,18 +1,50 @@
 ﻿using System.Collections.Generic;
 using System;
 using System.Linq;
+using UnityEngine;
 
 namespace Checkers
 {
-    internal class GameInitializator
+    public class GameInitializator
     {
+        private readonly SelectManager _selectManager;
         private readonly List<CellComponent> _cellComponents;
         private readonly List<ChipComponent> _сhipComponents;
-        public GameInitializator(List<CellComponent> cellComponents, List<ChipComponent> chipComponents)
+
+        private List<CellComponent> _blackWinPositionCellComponents = new();
+        private List<CellComponent> _whiteWinPositionCellComponents = new();
+
+        public List<CellComponent> BlackWinPositionCellComponents { get { return _blackWinPositionCellComponents; } }
+        public List<CellComponent> WhiteWinPositionCellComponents { get { return _whiteWinPositionCellComponents; } }
+
+        public GameInitializator(SelectManager selectManager, List<CellComponent> cellComponents, List<ChipComponent> chipComponents)
         {
+            _selectManager = selectManager;
             _cellComponents = cellComponents;
             _сhipComponents = chipComponents;
         }
+
+        /// <summary>
+        /// Подписка на события всех клеток
+        /// </summary>
+        public void SubscribeCells()
+        {
+            foreach (var cell in _cellComponents)
+            {
+                cell.OnFocusEventHandler += _selectManager.CellFocus;
+                cell.OnClickEventHandler += _selectManager.CellOnClick;
+            }
+        }
+
+        /// <summary>
+        /// Последние ряды клеток в отдельные списки
+        /// </summary>
+        public void InitializeWinPosition()
+        {
+            _blackWinPositionCellComponents = _cellComponents.Where(t => t.transform.position.x > 60).ToList();
+            _whiteWinPositionCellComponents = _cellComponents.Where(t => t.transform.position.x < 0).ToList();
+        }
+
         /// <summary>
         /// Поиск всех соседей для клеток
         /// </summary>

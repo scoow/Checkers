@@ -14,7 +14,11 @@ namespace Checkers
         {
         }
 
-        public IEnumerator MoveFromTo(Vector3 startPosition, Vector3 endPosition, float time)
+        public void Move(Vector3 startPosition, Vector3 endPosition, float time)
+        {
+            StartCoroutine(MoveFromTo(startPosition, endPosition, time));
+        }
+        private IEnumerator MoveFromTo(Vector3 startPosition, Vector3 endPosition, float time)
         {
             var currentTime = 0f;
             while (currentTime < time)
