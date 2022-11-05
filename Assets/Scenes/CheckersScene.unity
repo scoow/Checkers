@@ -1772,9 +1772,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1970bbfcea8cfa4ca3522b57da18d1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _selectCellMaterial: {fileID: 2100000, guid: 16f5e2a14b46c3240a60969d73ec58e4, type: 2}
-  _selectChipMaterial: {fileID: 2100000, guid: 50c8674ebc6d2424b8a65dab7396b202, type: 2}
-  _rayCast: {fileID: 0}
 --- !u!1001 &549399899
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3001,7 +2998,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 124ccb5c22643f342ba665a33b939084, type: 3}
+  m_Script: {fileID: 11500000, guid: 866594889cc4b1e47a52072d168c8cfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &963866582

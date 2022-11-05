@@ -12,25 +12,20 @@ namespace Checkers
     {
         private readonly List<CellComponent> _cellComponents;
         private readonly List<ChipComponent> _сhipComponents;
-        private CheckersLogic _checkersLogic;
+        private readonly CheckersLogic _checkersLogic;
 
         private CellComponent _selectedCell = null; //ссылка на нажатую клетку
         public CellComponent SelectedCell { get { return _selectedCell; } set { _selectedCell = value;  } }
 
-        public SelectManager(List<CellComponent> cellComponents, List<ChipComponent> chipComponents)
+        public SelectManager(CheckersLogic checkersLogic, List<CellComponent> cellComponents, List<ChipComponent> chipComponents)
         {
+            _checkersLogic = checkersLogic;
             _cellComponents = cellComponents;
             _сhipComponents = chipComponents;
-            
 
             _selectCellMaterial = Resources.Load("Materials/SelectedCell", typeof(Material)) as Material;
             _selectChipMaterial = Resources.Load("Materials/SelectedChip", typeof(Material)) as Material;
         }
-        public void GetLogic(CheckersLogic checkersLogic)
-        {
-            _checkersLogic = checkersLogic;
-        }
-
 
         [SerializeField] private Material _selectCellMaterial;
         [SerializeField] private Material _selectChipMaterial;
@@ -64,7 +59,7 @@ namespace Checkers
             }
 
             foreach (var c in _cellComponents)
-                if (_checkersLogic.isValidEat(cell.Pair as ChipComponent, c))
+                if (_checkersLogic.IsValidEat(cell.Pair as ChipComponent, c))
                 {
                     c.AddAdditionalMaterial(_selectCellMaterial);
                     _selectedCells.Add(c);
@@ -177,9 +172,9 @@ namespace Checkers
                 return;
             }
 
-            if (_checkersLogic.isValidEat(_selectedChip, cell as CellComponent))//Если возможно съедение
+            if (_checkersLogic.IsValidEat(_selectedChip, cell as CellComponent))//Если возможно съедение
             {
-                _checkersLogic.EatChip(_selectedChip, cell as CellComponent, _checkersLogic.DetermineDirection(_selectedChip, cell as CellComponent, out bool plug));//Едим
+                _checkersLogic.EatChip(_selectedChip, cell as CellComponent, _checkersLogic.DetermineDirection(_selectedChip, cell as CellComponent, out _));//Едим
                 DeselectAllChips();//Убираем выделение с шашек
                 DeselectAllCells();//Убираем выделение с клеток
 
@@ -188,6 +183,17 @@ namespace Checkers
 
                 _selectedChip = null;
                 _checkersLogic.ChangePlayer();
+            }
+        }
+        /// <summary>
+        /// Подписка на события всех клеток
+        /// </summary>
+        public void SubscribeCells()
+        {
+            foreach (var cell in _cellComponents)
+            {
+                cell.OnFocusEventHandler += CellFocus;
+                cell.OnClickEventHandler += CellOnClick;
             }
         }
     }

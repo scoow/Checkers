@@ -6,7 +6,12 @@ namespace Checkers
     public class CameraManager : MonoBehaviour
     {
         private bool _side = true;
+        RaycasterManager _raycasterManager;
 
+        private void Start()
+        {
+            _raycasterManager = GetComponentInChildren<RaycasterManager>();
+        }
         public void RotateCam()
         {
             if (_side)
@@ -19,16 +24,17 @@ namespace Checkers
 
         private IEnumerator RotateCamera(float time, float angle)
         {
-            var currentTime = 0f;
-            //GameManager.instance.RayCaster.enabled = false;//////////////////////////
+            _raycasterManager.RayCasterOff();
 
+            var currentTime = 0f;
             while (currentTime < time)
             {
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, angle, 0), currentTime / 20); // 0 - 1
                 currentTime += Time.deltaTime;
                 yield return null;
             }
-            //GameManager.instance.RayCaster.enabled = true;
+
+            _raycasterManager.RayCasterOn();
         }
     }
 }

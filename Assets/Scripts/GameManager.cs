@@ -12,28 +12,25 @@ namespace Checkers
         private SelectManager selectManager;
         private GameInitializator gameInitializator;
         private CheckersLogic checkersLogic;
-
-        //private CameraManager _playerCamera;
-
-
+        private CameraManager cameraManager;
 
         private void Start()
         {
-            //_playerCamera = FindObjectOfType<CameraManager>();
+            cameraManager = FindObjectOfType<CameraManager>();
 
             _cellComponents = FindObjectsOfType<CellComponent>().ToList();
             _сhipComponents = FindObjectsOfType<ChipComponent>().ToList();
 
+            gameInitializator = new(_cellComponents, _сhipComponents);
 
-            selectManager = new(_cellComponents, _сhipComponents);
-            gameInitializator = new(selectManager, _cellComponents, _сhipComponents);
-            checkersLogic = new (selectManager, gameInitializator, _cellComponents, _сhipComponents);
-            selectManager.GetLogic(checkersLogic);
+            checkersLogic = new (gameInitializator, cameraManager, _сhipComponents);
+
+            selectManager = new(checkersLogic, _cellComponents, _сhipComponents);
 
             gameInitializator.InitializeWinPosition();
             gameInitializator.PairAllChips();//найти пару для всех шашек и связать
             gameInitializator.FindNeighbors();//найти соседей для всех клеток
-            gameInitializator.SubscribeCells();//подписаться на события всех клеток
+            selectManager.SubscribeCells();//подписаться на события всех клеток
         }
     }
 }

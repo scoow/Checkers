@@ -7,25 +7,27 @@ namespace Checkers
 {
     public class CheckersLogic
     {
-        private readonly SelectManager _selectManager;
+        //private readonly SelectManager _selectManager;
         private readonly GameInitializator _gameInitializator;
+        private readonly CameraManager _cameraManager;
 
         private ColorType _currentPlayer = ColorType.White;
         public ColorType CurrentPlayer { get { return _currentPlayer; } }
 
-        private readonly List<CellComponent> _cellComponents;
+        //private readonly List<CellComponent> _cellComponents;
         private readonly List<ChipComponent> _сhipComponents;
 
-        private List<ChipComponent> _whiteChipComponents;
-        private List<ChipComponent> _blackChipComponents;
+        private readonly List<ChipComponent> _whiteChipComponents;
+        private readonly List<ChipComponent> _blackChipComponents;
 
 
-        public CheckersLogic(SelectManager selectManager, GameInitializator gameInitializator, List<CellComponent> cellComponents, List<ChipComponent> chipComponents)
+        public CheckersLogic(GameInitializator gameInitializator, CameraManager cameraManager, List<ChipComponent> chipComponents)
         {
-            _cellComponents = cellComponents;
+            //_cellComponents = cellComponents;
             _сhipComponents = chipComponents;
             _gameInitializator = gameInitializator;
-            _selectManager = selectManager;
+            //_selectManager = selectManager;
+            _cameraManager = cameraManager;
 
             //
             _whiteChipComponents = _сhipComponents.Where(t => t.GetColor == ColorType.White).ToList();
@@ -41,10 +43,9 @@ namespace Checkers
         /// <param name="cell">клетка</param>
         /// <param name="neighborType">тип соседа</param>
         /// <returns>поедание возможно</returns>
-        public bool isValidEat(ChipComponent chip, CellComponent cell)
+        public bool IsValidEat(ChipComponent chip, CellComponent cell)
         {
-            bool isValid = false;
-            NeighborType neighborType = DetermineDirection(chip, cell, out isValid);
+            NeighborType neighborType = DetermineDirection(chip, cell, out bool isValid);
             if (!isValid) return false;
             /*
             * 1 клетка пустая и является соседом соседа
@@ -140,7 +141,7 @@ namespace Checkers
         public void ChangePlayer()
         {
             _currentPlayer = (ColorType)((int)(_currentPlayer + 1) % 2);
-            //_playerCamera.RotateCam();
+            _cameraManager.RotateCam();
         }
         /// <summary>
         /// Определяет обратное направление при поедании

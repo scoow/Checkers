@@ -3,16 +3,24 @@ using UnityEngine.EventSystems;
 
 namespace Checkers
 {
-    internal class RaycasterManager : MonoBehaviour
+    [RequireComponent(typeof(PhysicsRaycaster))]
+    public class RaycasterManager : MonoBehaviour
     {
-        private MainCam _mainCam;
+        //private MainCam _mainCam;
         private PhysicsRaycaster _rayCaster;
         public PhysicsRaycaster RayCaster { get => _rayCaster; private set => _rayCaster = value; }
 
-        public RaycasterManager()
+        public void RayCasterOn()
         {
-            _mainCam = FindObjectOfType<MainCam>();
-            _rayCaster = _mainCam.GetComponent<PhysicsRaycaster>();//блокировка ввода отключением Raycaster
+            RayCaster.enabled = true;
+        }
+        public void RayCasterOff()
+        {
+            RayCaster.enabled = false;
+        }
+        private void Awake()
+        {
+            RayCaster = GetComponent<PhysicsRaycaster>();//блокировка ввода отключением Raycaster
         }
     }
 }

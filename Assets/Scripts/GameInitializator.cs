@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System;
 using System.Linq;
-using UnityEngine;
 
 namespace Checkers
 {
     public class GameInitializator
     {
-        private readonly SelectManager _selectManager;
         private readonly List<CellComponent> _cellComponents;
         private readonly List<ChipComponent> _сhipComponents;
 
@@ -16,24 +14,15 @@ namespace Checkers
 
         public List<CellComponent> BlackWinPositionCellComponents { get { return _blackWinPositionCellComponents; } }
         public List<CellComponent> WhiteWinPositionCellComponents { get { return _whiteWinPositionCellComponents; } }
-
-        public GameInitializator(SelectManager selectManager, List<CellComponent> cellComponents, List<ChipComponent> chipComponents)
+        /// <summary>
+        /// Конструктор принимает ссылки на клетки и шашки
+        /// </summary>
+        /// <param name="cellComponents">Клетки</param>
+        /// <param name="chipComponents">Шашки</param>
+        public GameInitializator(List<CellComponent> cellComponents, List<ChipComponent> chipComponents)
         {
-            _selectManager = selectManager;
             _cellComponents = cellComponents;
             _сhipComponents = chipComponents;
-        }
-
-        /// <summary>
-        /// Подписка на события всех клеток
-        /// </summary>
-        public void SubscribeCells()
-        {
-            foreach (var cell in _cellComponents)
-            {
-                cell.OnFocusEventHandler += _selectManager.CellFocus;
-                cell.OnClickEventHandler += _selectManager.CellOnClick;
-            }
         }
 
         /// <summary>
