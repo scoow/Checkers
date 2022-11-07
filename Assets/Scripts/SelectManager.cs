@@ -3,20 +3,20 @@ using UnityEngine;
 
 namespace Checkers
 {
-/*    public interface ISelectManager
-    {
-        void SelectPossibleMoves(CellComponent cell, ColorType currentPlayer);
-    }*/
-
-    public class SelectManager// : ISelectManager
+    public class SelectManager
     {
         private readonly List<CellComponent> _cellComponents;
         private readonly List<ChipComponent> _сhipComponents;
         private readonly CheckersLogic _checkersLogic;
 
-        private CellComponent _selectedCell = null; //ссылка на нажатую клетку
-        public CellComponent SelectedCell { get { return _selectedCell; } set { _selectedCell = value;  } }
-
+        private CellComponent _selectedCell = null; 
+        public CellComponent SelectedCell { get { return _selectedCell; } set { _selectedCell = value; } }
+        /// <summary>
+        /// Конструктор принимает ссылки на класс логики шашек, список клеток и шашек
+        /// </summary>
+        /// <param name="checkersLogic"></param>
+        /// <param name="cellComponents"></param>
+        /// <param name="chipComponents"></param>
         public SelectManager(CheckersLogic checkersLogic, List<CellComponent> cellComponents, List<ChipComponent> chipComponents)
         {
             _checkersLogic = checkersLogic;
@@ -26,12 +26,15 @@ namespace Checkers
             _selectCellMaterial = Resources.Load("Materials/SelectedCell", typeof(Material)) as Material;
             _selectChipMaterial = Resources.Load("Materials/SelectedChip", typeof(Material)) as Material;
         }
-
         [SerializeField] private Material _selectCellMaterial;
         [SerializeField] private Material _selectChipMaterial;
-        private List<CellComponent> _selectedCells = new(); //ссылка на выделенные клетки
+        private readonly List<CellComponent> _selectedCells = new(); //ссылка на выделенные клетки
         private ChipComponent _selectedChip = null;//ссылка на выделенную шашку
-
+        /// <summary>
+        /// Выделить все возможные ходя для стороны
+        /// </summary>
+        /// <param name="cell">Выделенная клетка</param>
+        /// <param name="currentPlayer">Текцщая сторона</param>
         public void SelectPossibleMoves(CellComponent cell, ColorType currentPlayer)
         {
             CellComponent _leftNeighbor;
@@ -87,7 +90,7 @@ namespace Checkers
             }
         }
         /// <summary>
-        /// Снять выделение со всех соседей клетки
+        /// Снять выделение со всех клеткок
         /// </summary>
         /// <param name="component"></param>
         public void DeselectAllCells()
@@ -126,7 +129,6 @@ namespace Checkers
         {
             return chip.GetColor == _checkersLogic.CurrentPlayer;
         }
-
         /// <summary>
         /// Обработка нажатия на клетку
         /// </summary>
@@ -155,7 +157,7 @@ namespace Checkers
                 ChipOnSelect(_selectedChip);//При выделении шашки
                 return;
             }
-            
+
             if (_selectedChip == null) return;//Ни одна шашка ещё не выделена
 
             if (_checkersLogic.IsValidMove(_selectedChip, cell as CellComponent))//Если возможен ход

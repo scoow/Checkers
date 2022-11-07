@@ -5,7 +5,7 @@ namespace Checkers
 {
     public class CameraManager : MonoBehaviour
     {
-        private bool _side = true; //в какую второну разворачивать камеру
+        private bool _side = true; //в какую сторону разворачивать камеру
         RaycasterManager _raycasterManager;
 
         private void Start()

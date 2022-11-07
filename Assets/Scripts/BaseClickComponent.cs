@@ -65,7 +65,7 @@ namespace Checkers
         //При нажатии мышкой по объекту, вызывается данный метод
         public void OnPointerClick(PointerEventData eventData)
         {
-            OnClickEventHandler?.Invoke(this as CellComponent);//
+            OnClickEventHandler?.Invoke(this as CellComponent);
         }
         //Этот метод можно вызвать в дочерних классах (если они есть) и тем самым пробросить вызов
         //события из дочернего класса в родительский

@@ -14,6 +14,9 @@ namespace Checkers
         private CheckersLogic _checkersLogic;
         private CameraManager _cameraManager;
 
+
+       
+
         private void Start()
         {
             _cameraManager = FindObjectOfType<CameraManager>();

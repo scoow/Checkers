@@ -7,35 +7,40 @@ namespace Checkers
 {
     public class CheckersLogic
     {
-        //private readonly SelectManager _selectManager;
+        public IObserver _observer;
+
+        public event MoveEventHandler OnMoveEventHandler;
+        public delegate void MoveEventHandler();
+
         private readonly GameInitializator _gameInitializator;
         private readonly CameraManager _cameraManager;
 
         private ColorType _currentPlayer = ColorType.White;
-        public ColorType CurrentPlayer { get { return _currentPlayer; } }
+        public ColorType CurrentPlayer => _currentPlayer;
 
-        //private readonly List<CellComponent> _cellComponents;
         private readonly List<ChipComponent> _сhipComponents;
-
         private readonly List<ChipComponent> _whiteChipComponents;
         private readonly List<ChipComponent> _blackChipComponents;
-
-
+        /// <summary>
+        /// Конструктор, прининимает ссылку на инициализатор, менеджер камеры, список шашек
+        /// </summary>
+        /// <param name="gameInitializator">инициализатор</param>
+        /// <param name="cameraManager">менеджер камеры</param>
+        /// <param name="chipComponents">список шашек</param>
         public CheckersLogic(GameInitializator gameInitializator, CameraManager cameraManager, List<ChipComponent> chipComponents)
         {
-            //_cellComponents = cellComponents;
             _сhipComponents = chipComponents;
             _gameInitializator = gameInitializator;
-            //_selectManager = _selectManager;
             _cameraManager = cameraManager;
 
-            //
             _whiteChipComponents = _сhipComponents.Where(t => t.GetColor == ColorType.White).ToList();
             _blackChipComponents = _сhipComponents.Where(t => t.GetColor == ColorType.Black).ToList();
+
+            ////////////
+            _observer = new Observer();
+            OnMoveEventHandler += _observer.RecieveTurn;
+            OnMoveEventHandler.Invoke();
         }
-
-
-
         /// <summary>
         /// Проверка, возможно ли поедание
         /// </summary>
@@ -73,7 +78,6 @@ namespace Checkers
             }
             return false;
         }
-
         /// <summary>
         /// Проверка, не съедены ли все шашки стороны
         /// </summary>
@@ -86,7 +90,6 @@ namespace Checkers
             else
                 return _blackChipComponents.Count() <= 0;
         }
-
         /// <summary>
         /// Проверка достижения последнего ряда
         /// </summary>
@@ -121,7 +124,6 @@ namespace Checkers
                 return (c.GetNeighbor(NeighborType.TopLeft) == cell || c.GetNeighbor(NeighborType.TopRight) == cell);
             return (c.GetNeighbor(NeighborType.BottomLeft) == cell || c.GetNeighbor(NeighborType.BottomRight) == cell);
         }
-
         /// <summary>
         /// Двигает шашку на клетку
         /// </summary>
@@ -133,7 +135,6 @@ namespace Checkers
             chip.Move(chip.transform.position, cell.transform.position + new Vector3(0, 0.5f, 0), 1f);
             chip.Pair = cell;
             cell.Pair = chip;
-            //сходили успешно
         }
         /// <summary>
         /// Смена стороны
@@ -152,7 +153,12 @@ namespace Checkers
         {
             return (NeighborType)((int)(neighborType + 2) % 4);
         }
-
+        /// <summary>
+        /// Съедение шашки
+        /// </summary>
+        /// <param name="chip">Шашка, которой ходим</param>
+        /// <param name="cell">На какую клетку ходим</param>
+        /// <param name="neighborType">Тип соседа, в направлении которого ходим</param>
         public void EatChip(ChipComponent chip, CellComponent cell, NeighborType neighborType)
         {
             var c = chip.Pair as CellComponent;
@@ -160,7 +166,6 @@ namespace Checkers
                 chip.Pair.Pair = null;
                 chip.Move(chip.transform.position, cell.transform.position + new Vector3(0, 0.5f, 0), 1f);
 
-                //???
                 c.GetNeighbor(neighborType).Pair.gameObject.SetActive(false);
 
                 if (c.GetNeighbor(neighborType).Pair.GetColor == ColorType.White)
@@ -202,6 +207,7 @@ namespace Checkers
             isSuccess = false;
             return NeighborType.TopLeft;
         }
-
     }
+
+    
 }

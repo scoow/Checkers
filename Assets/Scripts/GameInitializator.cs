@@ -8,7 +8,6 @@ namespace Checkers
     {
         private readonly List<CellComponent> _cellComponents;
         private readonly List<ChipComponent> _сhipComponents;
-
         private List<CellComponent> _blackWinPositionCellComponents = new();
         private List<CellComponent> _whiteWinPositionCellComponents = new();
 
@@ -24,7 +23,6 @@ namespace Checkers
             _cellComponents = cellComponents;
             _сhipComponents = chipComponents;
         }
-
         /// <summary>
         /// Последние ряды клеток в отдельные списки
         /// </summary>
@@ -33,7 +31,6 @@ namespace Checkers
             _blackWinPositionCellComponents = _cellComponents.Where(t => t.transform.position.x > 60).ToList();
             _whiteWinPositionCellComponents = _cellComponents.Where(t => t.transform.position.x < 0).ToList();
         }
-
         /// <summary>
         /// Поиск всех соседей для клеток
         /// </summary>

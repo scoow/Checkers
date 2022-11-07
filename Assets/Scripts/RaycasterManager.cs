@@ -6,7 +6,6 @@ namespace Checkers
     [RequireComponent(typeof(PhysicsRaycaster))]
     public class RaycasterManager : MonoBehaviour
     {
-        //private MainCam _mainCam;
         private PhysicsRaycaster _rayCaster;
         public PhysicsRaycaster RayCaster { get => _rayCaster; private set => _rayCaster = value; }
 
