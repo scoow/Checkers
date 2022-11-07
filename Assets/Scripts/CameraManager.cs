@@ -5,24 +5,24 @@ namespace Checkers
 {
     public class CameraManager : MonoBehaviour
     {
-        private bool _side = true;
+        private bool _side = true; //в какую второну разворачивать камеру
         RaycasterManager _raycasterManager;
 
         private void Start()
         {
             _raycasterManager = GetComponentInChildren<RaycasterManager>();
         }
-        public void RotateCam()
+        public void RotateCamera()
         {
             if (_side)
-                StartCoroutine(RotateCamera(2f, 180));
+                StartCoroutine(Rotate(2f, 180));
             else
-                StartCoroutine(RotateCamera(2f, 0));
+                StartCoroutine(Rotate(2f, 0));
 
             _side = !_side;
         }
 
-        private IEnumerator RotateCamera(float time, float angle)
+        private IEnumerator Rotate(float time, float angle)
         {
             _raycasterManager.RayCasterOff();
 

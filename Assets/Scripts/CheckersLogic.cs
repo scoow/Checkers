@@ -26,7 +26,7 @@ namespace Checkers
             //_cellComponents = cellComponents;
             _сhipComponents = chipComponents;
             _gameInitializator = gameInitializator;
-            //_selectManager = selectManager;
+            //_selectManager = _selectManager;
             _cameraManager = cameraManager;
 
             //
@@ -141,7 +141,7 @@ namespace Checkers
         public void ChangePlayer()
         {
             _currentPlayer = (ColorType)((int)(_currentPlayer + 1) % 2);
-            _cameraManager.RotateCam();
+            _cameraManager.RotateCamera();
         }
         /// <summary>
         /// Определяет обратное направление при поедании
