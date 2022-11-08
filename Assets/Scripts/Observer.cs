@@ -1,3 +1,4 @@
+using Checkers;
 using System.IO;
 using UnityEngine;
 
@@ -6,23 +7,25 @@ namespace Checkers
 {
     public class Observer : IObserver
     {
+        private bool _isReplayMode = false;
         private string path = "log.txt";
-        public Observer()
+        private bool _fileExists;
+        public Observer(bool isReplayMode)
         {
-            if (!File.Exists(path))
-            {
-                File.Create(path);
-            }
-            using (File.OpenRead(path))
-            using (StreamReader sr = new StreamReader(path))
-            {
-                sr.ReadToEnd();
-            }
-
+            _isReplayMode = isReplayMode;
         }
-        public void RecieveTurn()
+        void IObserver.RecieveTurn(ColorType player, ActionType actionType, string cell)
         {
-            Debug.Log("GG");
+            //Debug.Log("GG");
+
+            using (StreamWriter sw = new(path, true))
+            {
+                sw.WriteLine(player.ToString() + " " + actionType.ToString() + " " + cell);
+            } 
+        }
+        void IObserver.RecieveTurn(ColorType player, ActionType actionType, string startCell, string endCell)
+        {
+            //
         }
     }
 }

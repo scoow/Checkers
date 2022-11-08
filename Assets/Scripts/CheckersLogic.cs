@@ -10,7 +10,7 @@ namespace Checkers
         public IObserver _observer;
 
         public event MoveEventHandler OnMoveEventHandler;
-        public delegate void MoveEventHandler();
+        public delegate void MoveEventHandler(ColorType player, ActionType actionType, string cell);
 
         private readonly GameInitializator _gameInitializator;
         private readonly CameraManager _cameraManager;
@@ -37,9 +37,9 @@ namespace Checkers
             _blackChipComponents = _сhipComponents.Where(t => t.GetColor == ColorType.Black).ToList();
 
             ////////////
-            _observer = new Observer();
+            _observer = new Observer(false);//
             OnMoveEventHandler += _observer.RecieveTurn;
-            OnMoveEventHandler.Invoke();
+            
         }
         /// <summary>
         /// Проверка, возможно ли поедание
@@ -131,11 +131,18 @@ namespace Checkers
         /// <param name="cell">клетка</param>
         public void MoveChip(ChipComponent chip, CellComponent cell)
         {
+            OnMoveEventHandler.Invoke(_currentPlayer, ActionType.moves, MoveToString(chip, cell));
+
             chip.Pair.Pair = null;
             chip.Move(chip.transform.position, cell.transform.position + new Vector3(0, 0.5f, 0), 1f);
             chip.Pair = cell;
             cell.Pair = chip;
         }
+        private string MoveToString(ChipComponent chip, CellComponent cell)
+        {
+            return chip.Pair.gameObject.name.ToString() + " - " + cell.gameObject.name.ToString();
+        }
+
         /// <summary>
         /// Смена стороны
         /// </summary>
@@ -161,6 +168,8 @@ namespace Checkers
         /// <param name="neighborType">Тип соседа, в направлении которого ходим</param>
         public void EatChip(ChipComponent chip, CellComponent cell, NeighborType neighborType)
         {
+            OnMoveEventHandler.Invoke(_currentPlayer, ActionType.takes, MoveToString(chip, cell));
+
             var c = chip.Pair as CellComponent;
             {
                 chip.Pair.Pair = null;
