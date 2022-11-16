@@ -5,9 +5,13 @@ namespace Checkers
 {
     public class SelectManager
     {
+        public event MoveEventHandler OnMoveEventHandler;//
+        public delegate void MoveEventHandler(ColorType player, ActionType actionType, string cell);//
+
         private readonly List<CellComponent> _cellComponents;
         private readonly List<ChipComponent> _сhipComponents;
         private readonly CheckersLogic _checkersLogic;
+        private readonly IObserver _observer;
 
         private CellComponent _selectedCell = null; 
         public CellComponent SelectedCell { get { return _selectedCell; } set { _selectedCell = value; } }
@@ -17,14 +21,19 @@ namespace Checkers
         /// <param name="checkersLogic"></param>
         /// <param name="cellComponents"></param>
         /// <param name="chipComponents"></param>
-        public SelectManager(CheckersLogic checkersLogic, List<CellComponent> cellComponents, List<ChipComponent> chipComponents)
+        public SelectManager(CheckersLogic checkersLogic, IObserver observer, List<CellComponent> cellComponents, List<ChipComponent> chipComponents)
         {
             _checkersLogic = checkersLogic;
             _cellComponents = cellComponents;
             _сhipComponents = chipComponents;
+            _observer = observer;
+            
 
             _selectCellMaterial = Resources.Load("Materials/SelectedCell", typeof(Material)) as Material;
             _selectChipMaterial = Resources.Load("Materials/SelectedChip", typeof(Material)) as Material;
+
+
+            OnMoveEventHandler += _observer.RecieveTurn;
         }
         [SerializeField] private Material _selectCellMaterial;
         [SerializeField] private Material _selectChipMaterial;
@@ -73,7 +82,7 @@ namespace Checkers
         /// </summary>
         /// <param name="component"></param>
         /// <param name="isSelect"></param>
-        public void CellFocus(CellComponent cell, bool isSelect)
+        public void CellFocus (CellComponent cell, bool isSelect)
         {
             if (isSelect)
             {
@@ -109,6 +118,8 @@ namespace Checkers
         {
             chip.AddAdditionalMaterial(_selectChipMaterial);
             SelectPossibleMoves(chip.Pair as CellComponent, chip.GetColor);
+
+            OnMoveEventHandler.Invoke(_checkersLogic.CurrentPlayer, ActionType.selects, _checkersLogic.MoveToString(chip, null));
         }
         /// <summary>
         /// Снимает выделение со всех шашек

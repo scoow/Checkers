@@ -7,13 +7,13 @@ namespace Checkers
 {
     public class CheckersLogic
     {
-        public IObserver _observer;
 
         public event MoveEventHandler OnMoveEventHandler;
         public delegate void MoveEventHandler(ColorType player, ActionType actionType, string cell);
 
         private readonly GameInitializator _gameInitializator;
         private readonly CameraManager _cameraManager;
+        private readonly IObserver _observer;
 
         private ColorType _currentPlayer = ColorType.White;
         public ColorType CurrentPlayer => _currentPlayer;
@@ -27,17 +27,18 @@ namespace Checkers
         /// <param name="gameInitializator">инициализатор</param>
         /// <param name="cameraManager">менеджер камеры</param>
         /// <param name="chipComponents">список шашек</param>
-        public CheckersLogic(GameInitializator gameInitializator, CameraManager cameraManager, List<ChipComponent> chipComponents)
+        public CheckersLogic(GameInitializator gameInitializator, IObserver observer, CameraManager cameraManager, List<ChipComponent> chipComponents)
         {
             _сhipComponents = chipComponents;
             _gameInitializator = gameInitializator;
             _cameraManager = cameraManager;
+            _observer = observer;
 
             _whiteChipComponents = _сhipComponents.Where(t => t.GetColor == ColorType.White).ToList();
             _blackChipComponents = _сhipComponents.Where(t => t.GetColor == ColorType.Black).ToList();
 
             ////////////
-            _observer = new Observer(false);//
+            
             OnMoveEventHandler += _observer.RecieveTurn;
             
         }
@@ -138,9 +139,10 @@ namespace Checkers
             chip.Pair = cell;
             cell.Pair = chip;
         }
-        private string MoveToString(ChipComponent chip, CellComponent cell)
+        public string MoveToString(ChipComponent chip, CellComponent cell)/////////////private?
         {
-            return chip.Pair.gameObject.name.ToString() + " - " + cell.gameObject.name.ToString();
+
+            return chip.Pair.gameObject.name.ToString() + " " + cell?.gameObject.name.ToString();
         }
 
         /// <summary>

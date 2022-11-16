@@ -1,0 +1,8 @@
+White selects 3E 
+White moves 3E 4D
+Black selects 6D 
+Black moves 6D 5E
+White selects 3E 
+White moves 3E 4D
+Black selects 6D 
+Black moves 6D 5E

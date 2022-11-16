@@ -6,6 +6,9 @@ namespace Checkers
 {
     public class GameManager : MonoBehaviour
     {
+        [SerializeField]
+        private bool inReplayMode;
+
         private List<CellComponent> _cellComponents;
         private List<ChipComponent> _сhipComponents;
 
@@ -14,11 +17,13 @@ namespace Checkers
         private CheckersLogic _checkersLogic;
         private CameraManager _cameraManager;
 
+        private IObserver _observer;
 
-       
 
         private void Start()
         {
+            _observer = new Observer(false);//наблюдатель
+
             _cameraManager = FindObjectOfType<CameraManager>();
 
             _cellComponents = FindObjectsOfType<CellComponent>().ToList();
@@ -29,9 +34,9 @@ namespace Checkers
             _gameInitializator.PairAllChips();//найти пару для всех шашек и связать
             _gameInitializator.FindNeighbors();//найти соседей для всех клеток
 
-            _checkersLogic = new (_gameInitializator, _cameraManager, _сhipComponents);
+            _checkersLogic = new (_gameInitializator, _observer, _cameraManager, _сhipComponents);
 
-            _selectManager = new(_checkersLogic, _cellComponents, _сhipComponents);
+            _selectManager = new(_checkersLogic, _observer, _cellComponents, _сhipComponents);
             _selectManager.SubscribeCells();//подписаться на события всех клеток
         }
     }
