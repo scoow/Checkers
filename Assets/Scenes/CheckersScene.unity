@@ -1772,6 +1772,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1970bbfcea8cfa4ca3522b57da18d1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inReplayMode: 1
+  ReplayModeDelay: 4
 --- !u!1001 &549399899
 PrefabInstance:
   m_ObjectHideFlags: 0

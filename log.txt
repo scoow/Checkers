@@ -1,8 +1,6 @@
-White selects 3E 
-White moves 3E 4D
-Black selects 6D 
-Black moves 6D 5E
-White selects 3E 
-White moves 3E 4D
-Black selects 6D 
-Black moves 6D 5E
+White selects 3G 
+White moves 4H 4H
+Black selects 6F 
+Black moves 5G 5G
+White selects 4H 
+White takes 6F 6F

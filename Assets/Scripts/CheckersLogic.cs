@@ -8,12 +8,8 @@ namespace Checkers
     public class CheckersLogic
     {
 
-        public event MoveEventHandler OnMoveEventHandler;
-        public delegate void MoveEventHandler(ColorType player, ActionType actionType, string cell);
-
         private readonly GameInitializator _gameInitializator;
         private readonly CameraManager _cameraManager;
-        private readonly IObserver _observer;
 
         private ColorType _currentPlayer = ColorType.White;
         public ColorType CurrentPlayer => _currentPlayer;
@@ -27,20 +23,14 @@ namespace Checkers
         /// <param name="gameInitializator">инициализатор</param>
         /// <param name="cameraManager">менеджер камеры</param>
         /// <param name="chipComponents">список шашек</param>
-        public CheckersLogic(GameInitializator gameInitializator, IObserver observer, CameraManager cameraManager, List<ChipComponent> chipComponents)
+        public CheckersLogic(GameInitializator gameInitializator, CameraManager cameraManager, List<ChipComponent> chipComponents)
         {
             _сhipComponents = chipComponents;
             _gameInitializator = gameInitializator;
             _cameraManager = cameraManager;
-            _observer = observer;
 
             _whiteChipComponents = _сhipComponents.Where(t => t.GetColor == ColorType.White).ToList();
             _blackChipComponents = _сhipComponents.Where(t => t.GetColor == ColorType.Black).ToList();
-
-            ////////////
-            
-            OnMoveEventHandler += _observer.RecieveTurn;
-            
         }
         /// <summary>
         /// Проверка, возможно ли поедание
@@ -132,19 +122,11 @@ namespace Checkers
         /// <param name="cell">клетка</param>
         public void MoveChip(ChipComponent chip, CellComponent cell)
         {
-            OnMoveEventHandler.Invoke(_currentPlayer, ActionType.moves, MoveToString(chip, cell));
-
             chip.Pair.Pair = null;
             chip.Move(chip.transform.position, cell.transform.position + new Vector3(0, 0.5f, 0), 1f);
             chip.Pair = cell;
             cell.Pair = chip;
         }
-        public string MoveToString(ChipComponent chip, CellComponent cell)/////////////private?
-        {
-
-            return chip.Pair.gameObject.name.ToString() + " " + cell?.gameObject.name.ToString();
-        }
-
         /// <summary>
         /// Смена стороны
         /// </summary>
@@ -170,8 +152,6 @@ namespace Checkers
         /// <param name="neighborType">Тип соседа, в направлении которого ходим</param>
         public void EatChip(ChipComponent chip, CellComponent cell, NeighborType neighborType)
         {
-            OnMoveEventHandler.Invoke(_currentPlayer, ActionType.takes, MoveToString(chip, cell));
-
             var c = chip.Pair as CellComponent;
             {
                 chip.Pair.Pair = null;
@@ -219,6 +199,4 @@ namespace Checkers
             return NeighborType.TopLeft;
         }
     }
-
-    
 }

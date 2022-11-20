@@ -2,8 +2,9 @@
 {
     public interface IObserver
     {
-        void RecieveTurn(ColorType player, ActionType actionType, string cell);
-        void RecieveTurn(ColorType player, ActionType actionType, string startCell, string endCell);
+        void RecieveTurn(string move);
+        string SendTurn();
+        bool HaveMoves();
     }
 
     public enum ActionType

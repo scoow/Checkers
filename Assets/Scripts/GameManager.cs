@@ -8,6 +8,8 @@ namespace Checkers
     {
         [SerializeField]
         private bool inReplayMode;
+        [SerializeField]
+        private int ReplayModeDelay;
 
         private List<CellComponent> _cellComponents;
         private List<ChipComponent> _сhipComponents;
@@ -22,7 +24,15 @@ namespace Checkers
 
         private void Start()
         {
-            _observer = new Observer(false);//наблюдатель
+            _observer = new Observer(inReplayMode);//наблюдатель
+
+            while (_observer.HaveMoves())
+            {
+                Debug.Log(_observer.SendTurn());
+                //WaitForSeconds(ReplayModeDelay);
+                
+            }
+                
 
             _cameraManager = FindObjectOfType<CameraManager>();
 
@@ -34,7 +44,7 @@ namespace Checkers
             _gameInitializator.PairAllChips();//найти пару для всех шашек и связать
             _gameInitializator.FindNeighbors();//найти соседей для всех клеток
 
-            _checkersLogic = new (_gameInitializator, _observer, _cameraManager, _сhipComponents);
+            _checkersLogic = new(_gameInitializator, _cameraManager, _сhipComponents);
 
             _selectManager = new(_checkersLogic, _observer, _cellComponents, _сhipComponents);
             _selectManager.SubscribeCells();//подписаться на события всех клеток

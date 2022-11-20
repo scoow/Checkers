@@ -1,31 +1,60 @@
-using Checkers;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
-
 
 namespace Checkers
 {
     public class Observer : IObserver
     {
-        private bool _isReplayMode = false;
-        private string path = "log.txt";
-        private bool _fileExists;
+        private readonly bool _isReplayMode = false;
+        private readonly string _path = "log.txt";
+        private readonly Queue<string> _movesQueque;
+
         public Observer(bool isReplayMode)
         {
             _isReplayMode = isReplayMode;
+            if (File.Exists(_path))
+                if (!_isReplayMode)
+                {
+                    File.Delete(_path);
+                }
+                else
+                {
+                    _movesQueque = new Queue<string>();
+                    ReadFromFileToQueque();
+                }
         }
-        void IObserver.RecieveTurn(ColorType player, ActionType actionType, string cell)
-        {
-            //Debug.Log("GG");
 
-            using (StreamWriter sw = new(path, true))
-            {
-                sw.WriteLine(player.ToString() + " " + actionType.ToString() + " " + cell);
-            } 
-        }
-        void IObserver.RecieveTurn(ColorType player, ActionType actionType, string startCell, string endCell)
+        private void ReadFromFileToQueque()
         {
-            //
+            using (StreamReader sr = new(_path))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    _movesQueque.Enqueue(line);
+                }
+            }
+
+        }
+
+        public bool HaveMoves()//
+        {
+            return _movesQueque.Count > 0;
+        }
+
+        void IObserver.RecieveTurn(string move)
+        {
+            if (!_isReplayMode)
+                using (StreamWriter sw = new(_path, true))
+                {
+                    sw.WriteLine(move);
+                }
+        }
+
+        public string SendTurn()
+        {
+            return _movesQueque.Dequeue();
         }
     }
 }

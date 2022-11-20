@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Checkers
@@ -6,7 +7,7 @@ namespace Checkers
     public class SelectManager
     {
         public event MoveEventHandler OnMoveEventHandler;//
-        public delegate void MoveEventHandler(ColorType player, ActionType actionType, string cell);//
+        public delegate void MoveEventHandler(string move);//
 
         private readonly List<CellComponent> _cellComponents;
         private readonly List<ChipComponent> _сhipComponents;
@@ -31,7 +32,6 @@ namespace Checkers
 
             _selectCellMaterial = Resources.Load("Materials/SelectedCell", typeof(Material)) as Material;
             _selectChipMaterial = Resources.Load("Materials/SelectedChip", typeof(Material)) as Material;
-
 
             OnMoveEventHandler += _observer.RecieveTurn;
         }
@@ -119,7 +119,8 @@ namespace Checkers
             chip.AddAdditionalMaterial(_selectChipMaterial);
             SelectPossibleMoves(chip.Pair as CellComponent, chip.GetColor);
 
-            OnMoveEventHandler.Invoke(_checkersLogic.CurrentPlayer, ActionType.selects, _checkersLogic.MoveToString(chip, null));
+
+            OnMoveEventHandler.Invoke(MoveToString(_checkersLogic.CurrentPlayer, ActionType.selects, chip, null));
         }
         /// <summary>
         /// Снимает выделение со всех шашек
@@ -174,6 +175,10 @@ namespace Checkers
             if (_checkersLogic.IsValidMove(_selectedChip, cell as CellComponent))//Если возможен ход
             {
                 _checkersLogic.MoveChip(_selectedChip, cell as CellComponent);//Ходим
+
+                OnMoveEventHandler.Invoke(MoveToString(_checkersLogic.CurrentPlayer, ActionType.moves, _selectedChip, cell));
+                
+
                 DeselectAllChips();//Убираем выделение с шашек
                 DeselectAllCells();//Убираем выделение с клеток
 
@@ -188,6 +193,9 @@ namespace Checkers
             if (_checkersLogic.IsValidEat(_selectedChip, cell as CellComponent))//Если возможно съедение
             {
                 _checkersLogic.EatChip(_selectedChip, cell as CellComponent, _checkersLogic.DetermineDirection(_selectedChip, cell as CellComponent, out _));//Едим
+
+                OnMoveEventHandler.Invoke(MoveToString(_checkersLogic.CurrentPlayer, ActionType.takes, _selectedChip, cell));
+
                 DeselectAllChips();//Убираем выделение с шашек
                 DeselectAllCells();//Убираем выделение с клеток
 
@@ -209,5 +217,41 @@ namespace Checkers
                 cell.OnClickEventHandler += CellOnClick;
             }
         }
+        public string MoveToString(ColorType currentPlayer, ActionType actionType, ChipComponent chip, CellComponent cell)/////////////private?
+        {
+            string result;
+            result = currentPlayer.ToString() + " " + actionType.ToString() + " " + chip.Pair.gameObject.name.ToString();
+            if (actionType != ActionType.selects)
+                result += " " + cell.gameObject.name.ToString();
+            return result;
+        }
+
+        public (ColorType currentPlayer, ActionType actionType, ChipComponent chip, CellComponent cell) StringToMove(string move)/////////////private?
+        {
+            string[] result = move.Split(' ');
+            var _currentPlayer = result[0] switch
+            {
+                "White" => ColorType.White,
+                _ => ColorType.Black,
+            };
+
+            var _actionType = result[1] switch
+            {
+                "selects" => ActionType.selects,
+                "moves" => ActionType.moves,
+                _ => ActionType.takes,
+            };
+
+            BaseClickComponent _chip;
+            _chip = BaseClickComponent.FindByName(result[2]);
+
+            BaseClickComponent _cell = null;
+            if (_actionType != ActionType.selects)
+                _cell = BaseClickComponent.FindByName(result[3]);
+
+            return (_currentPlayer, _actionType, _chip as ChipComponent, _cell as CellComponent);
+        }
     }
+    
+
 }
