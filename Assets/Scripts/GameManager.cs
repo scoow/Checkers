@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -26,14 +27,6 @@ namespace Checkers
         {
             _observer = new Observer(inReplayMode);//наблюдатель
 
-            while (_observer.HaveMoves())
-            {
-                Debug.Log(_observer.SendTurn());
-                //WaitForSeconds(ReplayModeDelay);
-                
-            }
-                
-
             _cameraManager = FindObjectOfType<CameraManager>();
 
             _cellComponents = FindObjectsOfType<CellComponent>().ToList();
@@ -48,6 +41,30 @@ namespace Checkers
 
             _selectManager = new(_checkersLogic, _observer, _cellComponents, _сhipComponents);
             _selectManager.SubscribeCells();//подписаться на события всех клеток
+
+/*            if (inReplayMode)
+                while (_observer.HaveMoves())
+                {
+                    _selectManager.ReplayMove();
+                    StartCoroutine(Waiter());
+                }*/
+
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyUp(KeyCode.Space))
+            {
+                if (inReplayMode)
+                    if (_observer.HaveMoves())
+                    {
+                        _selectManager.ReplayMove();
+                    }
+            }
+        }
+        private IEnumerator Waiter()
+        {
+            yield return new WaitForSeconds(ReplayModeDelay);
         }
     }
 }

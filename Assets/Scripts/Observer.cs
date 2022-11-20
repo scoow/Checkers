@@ -8,7 +8,7 @@ namespace Checkers
     {
         private readonly bool _isReplayMode = false;
         private readonly string _path = "log.txt";
-        private readonly Queue<string> _movesQueque;
+        private readonly Queue<string> _movesQueque = new();
 
         public Observer(bool isReplayMode)
         {

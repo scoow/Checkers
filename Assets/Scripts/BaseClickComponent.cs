@@ -9,7 +9,7 @@ namespace Checkers
         //Меш игрового объекта
         private MeshRenderer _mesh;
         //Список материалов на меше объекта
-        private Material[] _meshMaterials = new Material[3];
+        private readonly Material[] _meshMaterials = new Material[3];
         [Tooltip("Цветовая сторона игрового объекта"), SerializeField]
         private ColorType _color;
         /// <summary>
@@ -86,9 +86,9 @@ namespace Checkers
         public delegate void ClickEventHandler(CellComponent component);
         public delegate void FocusEventHandler(CellComponent component, bool isSelect);
 
-        public static CellComponent FindByName(string name)
+        public static void FindByName(string name, out BaseClickComponent cell)
         {
-            return FindObjectsOfType<CellComponent>().Where(t => t.name == name).FirstOrDefault();
+            cell = FindObjectsOfType<CellComponent>().Where(t => t.name == name).FirstOrDefault();
         }
     }
 

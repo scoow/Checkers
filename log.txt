@@ -1,6 +1,19 @@
-White selects 3G 
-White moves 4H 4H
-Black selects 6F 
-Black moves 5G 5G
-White selects 4H 
-White takes 6F 6F
+White selects 3C
+White moves 3C 4D
+Black selects 6F
+Black moves 6F 5E
+White selects 4D
+White takes 4D 6F
+Black selects 7G
+Black takes 7G 5E
+White selects 3E
+White moves 3E 4D
+Black selects 6B
+Black moves 6B 5C
+White selects 4D
+White takes 4D 6F
+Black selects 8F
+Black selects 8H
+Black moves 8H 7G
+White selects 6F
+White takes 6F 8H

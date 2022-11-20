@@ -14,7 +14,45 @@ namespace Checkers
         private readonly CheckersLogic _checkersLogic;
         private readonly IObserver _observer;
 
-        private CellComponent _selectedCell = null; 
+        private CellComponent _selectedCell = null;
+        public void ReplayMove()
+        {
+            string move = _observer.SendTurn();
+
+            StringToMove(move, out ColorType currentPlayer, out ActionType actionType, out BaseClickComponent chip, out BaseClickComponent cell);
+            //_checkersLogic.CurrentPlayer = currentPlayer;
+            switch (actionType)
+            {
+                case ActionType.selects:
+                    ChipOnSelect(chip as ChipComponent);
+                    break;
+                case ActionType.moves:
+                    _checkersLogic.MoveChip(chip as ChipComponent, cell as CellComponent);
+                    DeselectAllChips();//Убираем выделение с шашек
+                    DeselectAllCells();//Убираем выделение с клеток
+
+                    if (_checkersLogic.ChipReachedLastRow(_selectedChip))//Проверка условия победы 
+                        Debug.Log("Победа " + _checkersLogic.CurrentPlayer);
+
+                    _selectedChip = null;//запихнуть в метод
+                    _checkersLogic.ChangePlayer();
+                    break;
+                case ActionType.takes:
+                    _checkersLogic.EatChip(chip as ChipComponent, cell as CellComponent, _checkersLogic.DetermineDirection(chip as ChipComponent, cell as CellComponent, out _));
+                    DeselectAllChips();//Убираем выделение с шашек
+                    DeselectAllCells();//Убираем выделение с клеток
+
+                    if (_checkersLogic.ChipReachedLastRow(_selectedChip) || _checkersLogic.ChipsCountLessThanZero(_checkersLogic.CurrentPlayer))//Проверка условия победы 
+                        Debug.Log("Победа " + _checkersLogic.CurrentPlayer);
+
+                    _selectedChip = null;
+                    _checkersLogic.ChangePlayer();
+                    break;
+                default:
+                    break;
+            }
+        }
+
         public CellComponent SelectedCell { get { return _selectedCell; } set { _selectedCell = value; } }
         /// <summary>
         /// Конструктор принимает ссылки на класс логики шашек, список клеток и шашек
@@ -174,10 +212,8 @@ namespace Checkers
 
             if (_checkersLogic.IsValidMove(_selectedChip, cell as CellComponent))//Если возможен ход
             {
-                _checkersLogic.MoveChip(_selectedChip, cell as CellComponent);//Ходим
-
                 OnMoveEventHandler.Invoke(MoveToString(_checkersLogic.CurrentPlayer, ActionType.moves, _selectedChip, cell));
-                
+                _checkersLogic.MoveChip(_selectedChip, cell as CellComponent);//Ходим
 
                 DeselectAllChips();//Убираем выделение с шашек
                 DeselectAllCells();//Убираем выделение с клеток
@@ -192,9 +228,8 @@ namespace Checkers
 
             if (_checkersLogic.IsValidEat(_selectedChip, cell as CellComponent))//Если возможно съедение
             {
-                _checkersLogic.EatChip(_selectedChip, cell as CellComponent, _checkersLogic.DetermineDirection(_selectedChip, cell as CellComponent, out _));//Едим
-
                 OnMoveEventHandler.Invoke(MoveToString(_checkersLogic.CurrentPlayer, ActionType.takes, _selectedChip, cell));
+                _checkersLogic.EatChip(_selectedChip, cell as CellComponent, _checkersLogic.DetermineDirection(_selectedChip, cell as CellComponent, out _));//Едим
 
                 DeselectAllChips();//Убираем выделение с шашек
                 DeselectAllCells();//Убираем выделение с клеток
@@ -226,7 +261,7 @@ namespace Checkers
             return result;
         }
 
-        public (ColorType currentPlayer, ActionType actionType, ChipComponent chip, CellComponent cell) StringToMove(string move)/////////////private?
+        public void StringToMove(string move, out ColorType currentPlayer, out ActionType actionType, out BaseClickComponent chip, out BaseClickComponent cell)/////////////private?
         {
             string[] result = move.Split(' ');
             var _currentPlayer = result[0] switch
@@ -242,16 +277,19 @@ namespace Checkers
                 _ => ActionType.takes,
             };
 
-            BaseClickComponent _chip;
-            _chip = BaseClickComponent.FindByName(result[2]);
+
+
+            BaseClickComponent.FindByName(result[2], out BaseClickComponent _chip);
 
             BaseClickComponent _cell = null;
             if (_actionType != ActionType.selects)
-                _cell = BaseClickComponent.FindByName(result[3]);
+                BaseClickComponent.FindByName(result[3], out _cell);
 
-            return (_currentPlayer, _actionType, _chip as ChipComponent, _cell as CellComponent);
+            currentPlayer = _currentPlayer;
+            actionType = _actionType;
+
+            chip = _chip.Pair as ChipComponent;
+            cell = _cell as CellComponent;
         }
     }
-    
-
 }
