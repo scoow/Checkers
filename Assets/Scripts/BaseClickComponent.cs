@@ -85,7 +85,11 @@ namespace Checkers
         }
         public delegate void ClickEventHandler(CellComponent component);
         public delegate void FocusEventHandler(CellComponent component, bool isSelect);
-
+        /// <summary>
+        /// Поиск объекта BaseClickComponent на сцене по имени
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="cell"></param>
         public static void FindByName(string name, out BaseClickComponent cell)
         {
             cell = FindObjectsOfType<CellComponent>().Where(t => t.name == name).FirstOrDefault();

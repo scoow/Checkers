@@ -8,7 +8,15 @@ namespace Checkers
         private bool _side = true; //в какую сторону разворачивать камеру
         RaycasterManager _raycasterManager;
 
-        private void Start()
+        public void DisableRaycaster()
+        {
+            _raycasterManager.RayCasterOff();
+        }
+        public void EnableRaycaster()
+        {
+            _raycasterManager.RayCasterOn();
+        }
+        private void Awake()
         {
             _raycasterManager = GetComponentInChildren<RaycasterManager>();
         }
@@ -24,7 +32,7 @@ namespace Checkers
 
         private IEnumerator Rotate(float time, float angle)
         {
-            _raycasterManager.RayCasterOff();
+            DisableRaycaster();
 
             var currentTime = 0f;
             while (currentTime < time)
@@ -34,7 +42,7 @@ namespace Checkers
                 yield return null;
             }
 
-            _raycasterManager.RayCasterOn();
+            EnableRaycaster();
         }
     }
 }

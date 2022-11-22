@@ -9,8 +9,6 @@ namespace Checkers
     {
         [SerializeField]
         private bool inReplayMode;
-        [SerializeField]
-        private int ReplayModeDelay;
 
         private List<CellComponent> _cellComponents;
         private List<ChipComponent> _сhipComponents;
@@ -21,8 +19,6 @@ namespace Checkers
         private CameraManager _cameraManager;
 
         private IObserver _observer;
-
-
         private void Start()
         {
             _observer = new Observer(inReplayMode);//наблюдатель
@@ -42,15 +38,9 @@ namespace Checkers
             _selectManager = new(_checkersLogic, _observer, _cellComponents, _сhipComponents);
             _selectManager.SubscribeCells();//подписаться на события всех клеток
 
-/*            if (inReplayMode)
-                while (_observer.HaveMoves())
-                {
-                    _selectManager.ReplayMove();
-                    StartCoroutine(Waiter());
-                }*/
-
+            if (inReplayMode)
+                _cameraManager.DisableRaycaster();
         }
-
         private void Update()
         {
             if (Input.GetKeyUp(KeyCode.Space))
@@ -61,10 +51,6 @@ namespace Checkers
                         _selectManager.ReplayMove();
                     }
             }
-        }
-        private IEnumerator Waiter()
-        {
-            yield return new WaitForSeconds(ReplayModeDelay);
         }
     }
 }

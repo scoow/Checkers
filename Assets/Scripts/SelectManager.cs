@@ -15,12 +15,14 @@ namespace Checkers
         private readonly IObserver _observer;
 
         private CellComponent _selectedCell = null;
+        /// <summary>
+        /// Воспроизведение хода
+        /// </summary>
         public void ReplayMove()
         {
             string move = _observer.SendTurn();
-
+           
             StringToMove(move, out ColorType currentPlayer, out ActionType actionType, out BaseClickComponent chip, out BaseClickComponent cell);
-            //_checkersLogic.CurrentPlayer = currentPlayer;
             switch (actionType)
             {
                 case ActionType.selects:
@@ -129,7 +131,7 @@ namespace Checkers
             }
             else
             {
-                if (cell != _selectedCell && !_selectedCells.Contains(cell))//исправить
+                if (cell != _selectedCell && !_selectedCells.Contains(cell))
                 {
                     cell.RemoveAdditionalMaterial();
                     cell.Pair?.RemoveAdditionalMaterial();
@@ -252,7 +254,15 @@ namespace Checkers
                 cell.OnClickEventHandler += CellOnClick;
             }
         }
-        public string MoveToString(ColorType currentPlayer, ActionType actionType, ChipComponent chip, CellComponent cell)/////////////private?
+        /// <summary>
+        /// Преобразование хода в строку
+        /// </summary>
+        /// <param name="currentPlayer"></param>
+        /// <param name="actionType"></param>
+        /// <param name="chip"></param>
+        /// <param name="cell"></param>
+        /// <returns></returns>
+        public string MoveToString(ColorType currentPlayer, ActionType actionType, ChipComponent chip, CellComponent cell)
         {
             string result;
             result = currentPlayer.ToString() + " " + actionType.ToString() + " " + chip.Pair.gameObject.name.ToString();
@@ -260,8 +270,15 @@ namespace Checkers
                 result += " " + cell.gameObject.name.ToString();
             return result;
         }
-
-        public void StringToMove(string move, out ColorType currentPlayer, out ActionType actionType, out BaseClickComponent chip, out BaseClickComponent cell)/////////////private?
+        /// <summary>
+        /// Преобразование строки в ход
+        /// </summary>
+        /// <param name="move"></param>
+        /// <param name="currentPlayer"></param>
+        /// <param name="actionType"></param>
+        /// <param name="chip"></param>
+        /// <param name="cell"></param>
+        public void StringToMove(string move, out ColorType currentPlayer, out ActionType actionType, out BaseClickComponent chip, out BaseClickComponent cell)
         {
             string[] result = move.Split(' ');
             var _currentPlayer = result[0] switch
@@ -276,8 +293,6 @@ namespace Checkers
                 "moves" => ActionType.moves,
                 _ => ActionType.takes,
             };
-
-
 
             BaseClickComponent.FindByName(result[2], out BaseClickComponent _chip);
 

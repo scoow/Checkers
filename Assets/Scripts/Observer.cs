@@ -14,11 +14,11 @@ namespace Checkers
         {
             _isReplayMode = isReplayMode;
             if (File.Exists(_path))
-                if (!_isReplayMode)
+                if (!_isReplayMode)//Если в режиме записи - удалить старый файл перед записью
                 {
                     File.Delete(_path);
                 }
-                else
+                else//иначе - закэшировать данные из файла в очередь
                 {
                     _movesQueque = new Queue<string>();
                     ReadFromFileToQueque();
@@ -35,10 +35,9 @@ namespace Checkers
                     _movesQueque.Enqueue(line);
                 }
             }
-
         }
 
-        public bool HaveMoves()//
+        public bool HaveMoves()
         {
             return _movesQueque.Count > 0;
         }
